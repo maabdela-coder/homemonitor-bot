@@ -1,6 +1,22 @@
 import telebot
 from telebot import types
 import os
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+# 1. Render የሚጠብቀውን ፖርት ለማሟላት የሚረዳ አጭር ዌብ ሰርቨር (Dummy Web Server)
+def run_dummy_server():
+    port = int(os.environ.get("PORT", 10000))
+    class SimpleHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"Home Monitor Bot is running 24/7!")
+    server = HTTPServer(('0.0.0.0', port), SimpleHandler)
+    server.serve_forever()
+
+# ሰርቨሩን በጀርባ (Background) ማስጀመር
+threading.Thread(target=run_dummy_server, daemon=True).start()
 
 # የቦቱን ቶከን እና የአድሚን ዩዘር ID እዚህ ያስገቡ
 TOKEN = '8701815004:AAF0hU6MCU0HvuaWdtmuEy9P1k_wj5FptLA'
@@ -30,7 +46,7 @@ def callback_handler(call):
             "አፕሊኬሽኑን ለመግዛት የሚከተሉትን አካውንቶች ይጠቀሙ:\n"
             "• የንግድ ባንክ (CBE): 100024494927\n"
             "• ቴሌብር (Telebirr): +251913441125\n\n"
-            "💰 ዋጋ: xxxx.xx ብር\n\n"
+            "💰 ዋጋ: xxxx.xxx ብር\n\n"
             "ክፍያውን ከፈጸሙ በኋላ የክፍያውን ደረሰኝ (Screenshot) በዚህ ቦት ላይ ፎቶውን ይላኩልን!"
         )
         markup = types.InlineKeyboardMarkup()
